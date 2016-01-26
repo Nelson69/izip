@@ -15,13 +15,13 @@ import (
 type Options struct {
 	Verbose          bool `short:"v" long:"verbose" description:"Show verbose debug information"`
 	DecompressFlag   bool `short:"d" long:"decompress" description:"Decompress the input file"`
-	CompressionLevel int  `long:"level" description:"Compression level, 1 - 11" default:"5"`
+	CompressionLevel int  `long:"level" description:"Compression level, 0 - 11" default:"5"`
 	Version          bool `long:"version" description:"Show version information"`
 	StandardOutput   bool `short:"c" long:"stdout" description:"Output to standard out"`
 }
 
 func versionInformation() {
-	fmt.Printf("IZip v0.5\n")
+	fmt.Printf("IZip v0.6\n")
 	fmt.Printf("Copyright (C) 2015 Ian S. Nelson <nelsonis@pobox.com>\n")
 	os.Exit(0)
 }
@@ -39,8 +39,8 @@ func main() {
 		versionInformation()
 	}
 
-	if options.CompressionLevel < 1 {
-		options.CompressionLevel = 1
+	if options.CompressionLevel < 0 {
+		options.CompressionLevel = 0
 	}
 	if options.CompressionLevel > 11 {
 		options.CompressionLevel = 11
@@ -104,6 +104,7 @@ func compressFile(inFileName string, outFileName string, level int, verbose bool
 
 	params := enc.NewBrotliParams()
 	params.SetQuality(level)
+	params.SetLgwin(24)
 	brotliWriter := enc.NewBrotliWriter(params, archiveWriter)
 	defer brotliWriter.Close()
 	
