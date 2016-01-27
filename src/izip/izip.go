@@ -22,7 +22,7 @@ type Options struct {
 
 func versionInformation() {
 	fmt.Printf("IZip v0.6\n")
-	fmt.Printf("Copyright (C) 2015 Ian S. Nelson <nelsonis@pobox.com>\n")
+	fmt.Printf("Copyright (C) 2015-2016 Ian S. Nelson <nelsonis@pobox.com>\n")
 	os.Exit(0)
 }
 
