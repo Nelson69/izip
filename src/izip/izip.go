@@ -21,7 +21,7 @@ type Options struct {
 }
 
 func versionInformation() {
-	fmt.Printf("IZip v0.6\n")
+	fmt.Printf("IZip v0.8\n")
 	fmt.Printf("Copyright (C) 2015-2016 Ian S. Nelson <nelsonis@pobox.com>\n")
 	os.Exit(0)
 }
@@ -77,6 +77,7 @@ func checkError(err error) {
 }
 
 func compressFile(inFileName string, outFileName string, level int, verbose bool, standardOutput bool) {
+    var buffer [1024*1024*32]byte
 	var inFile *os.File
 	var err error
 	if inFileName == "-" {
@@ -109,7 +110,7 @@ func compressFile(inFileName string, outFileName string, level int, verbose bool
 	defer brotliWriter.Close()
 	
 	// Perform the actual compression
-	io.Copy(brotliWriter, teeReader)		
+	io.CopyBuffer(brotliWriter, teeReader, buffer[:])		
 }
 
 // Flag IZ0x01   3 bytes
@@ -135,6 +136,7 @@ func readHeader(inFile io.Reader) bool {
 }
 
 func decompressFile(inFileName string, outFileName string, verbose bool, standardOutput bool) {
+    var buffer [1024*1024*32]byte
 	var inFile *os.File
 	var err error
 	if inFileName != "-" {
@@ -167,7 +169,7 @@ func decompressFile(inFileName string, outFileName string, verbose bool, standar
 
 	outFileMulti := io.MultiWriter(outFile, hashWriter)
 
-	io.Copy(outFileMulti, brotliReader)
+	io.CopyBuffer(outFileMulti, brotliReader, buffer[:])
 	outFile.Close()
 
 	hashOutput := hashWriter.Sum()
