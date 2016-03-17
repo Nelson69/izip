@@ -21,7 +21,7 @@ type Options struct {
 }
 
 func versionInformation() {
-	fmt.Printf("IZip v0.8\n")
+	fmt.Printf("IZip v0.9\n")
 	fmt.Printf("Copyright (C) 2015-2016 Ian S. Nelson <nelsonis@pobox.com>\n")
 	os.Exit(0)
 }
@@ -111,6 +111,7 @@ func compressFile(inFileName string, outFileName string, level int, verbose bool
 	
 	// Perform the actual compression
 	io.CopyBuffer(brotliWriter, teeReader, buffer[:])		
+	defer os.Remove(inFileName)
 }
 
 // Flag IZ0x01   3 bytes
@@ -170,13 +171,16 @@ func decompressFile(inFileName string, outFileName string, verbose bool, standar
 	outFileMulti := io.MultiWriter(outFile, hashWriter)
 
 	io.CopyBuffer(outFileMulti, brotliReader, buffer[:])
+	
 	outFile.Close()
 
 	hashOutput := hashWriter.Sum()
 
 	if bytes.Compare(hashOutput, hashtail.hashbuffer[:]) == 0 {
+	    os.Remove(inFileName)
 		os.Exit(0)
     } else {
+        fmt.Printf("Error decompressing.  Hashes don't match")
         os.Exit(1)
     }
 }
